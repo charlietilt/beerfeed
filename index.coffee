@@ -23,6 +23,13 @@ createFeed = (data) ->
     title: 'Smyrna Beer Market Beer List'
     description: 'Beers On Tap'
     feed_url: 'http://beerfeed.herokuapp.com/sbm'
+    custom_elements: [
+      ibv: 'Alcohol By Volume'
+    ,
+      ibu: 'International Bitterness Units'
+    ,
+      thumbnail: 'Beer thumbnail'
+    ]
 
   data.forEach (beer) ->
     feed.item
@@ -30,7 +37,14 @@ createFeed = (data) ->
       url: 'http://thestoutbrothers.com/locations/smyrna/beers-on-tap/'
       description: beer.description
       date: new Date()
-
+      guid: "http://thestoutbrothers.com/locations/smyrna/beers-on-tap/##{beer.title}"
+      custom_elements: [
+        ibv: beer.ibv
+      ,
+        ibu: beer.ibu
+      ,
+        thumbnail: beer.image
+      ]
   feed
 
 app.get '/sbm', (req, res) ->
