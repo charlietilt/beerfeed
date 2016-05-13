@@ -36,6 +36,7 @@ createFeed = (data) ->
 app.get '/sbm', (req, res) ->
   getFeed (error, feed) ->
     return res.json 400, 'error getting feed' if error?
-    res.send 200, feed
+    res.set('Content-Type', 'text/xml')
+    res.status(200).send feed.xml()
 
 app.listen process.env.PORT or 9000
