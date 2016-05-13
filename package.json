@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.coffee",
   "scripts": {
-    "start": "coffee index.coffee",
+    "start": "coffee index.coffee"
   },
   "author": "Charlie Tilt",
   "license": "ISC",
