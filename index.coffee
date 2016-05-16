@@ -1,10 +1,25 @@
+_ = require 'lodash'
 express = require 'express'
 app = express()
 request = require 'request'
 Rss = require 'rss'
 cheerio = require 'cheerio'
+cache = { }
+
+cacheFeed = (data) ->
+  cache = { }
+  cache.timestamp = Date.now() + 300000
+  cache.data = data
+  data
+
+getCachedFeed = ->
+  return cache.data if cache.data? and cache?.timestamp? and (cache?.timestamp > Date.now())
+  null
 
 getFeed = (callback) ->
+  feed = getCachedFeed()
+  return callback null, feed if feed?
+  console.log 'go get the feed...'
   request.get 'http://thestoutbrothers.com/locations/smyrna/beers-on-tap/', (error, res, html) ->
     return callback error if error?
     $ = cheerio.load html
@@ -16,7 +31,8 @@ getFeed = (callback) ->
       description: $(el).find('td:nth-child(3) h5').next('p').text()
       parings: $(el).find('h5:contains(Food Pairings)').next('p').text()
     .get()
-    callback null, createFeed(beers)
+    feed = cacheFeed(createFeed(beers))
+    callback null, feed
 
 createFeed = (data) ->
   feed = new Rss
@@ -50,7 +66,7 @@ createFeed = (data) ->
 app.get '/sbm', (req, res) ->
   getFeed (error, feed) ->
     return res.json 400, 'error getting feed' if error?
-    res.set('Content-Type', 'text/xml')
+    res.set 'Content-Type', 'text/xml'
     res.status(200).send feed.xml()
 
 app.listen process.env.PORT or 9000
